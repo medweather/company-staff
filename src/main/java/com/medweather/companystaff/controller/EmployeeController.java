@@ -1,6 +1,7 @@
 package com.medweather.companystaff.controller;
 
 import com.medweather.companystaff.api.request.EmployeeCreateApi;
+import com.medweather.companystaff.api.request.EmployeeEditApi;
 import com.medweather.companystaff.api.response.AbstractResponse;
 import com.medweather.companystaff.api.response.ResponseApi;
 import com.medweather.companystaff.service.EmployeeService;
@@ -77,6 +78,52 @@ public class EmployeeController {
 
         ResponseApi responseApi = employeeService.searchEmployee(last_name, first_name);
         return responseApi == null ? badRequestResponse() : new ResponseEntity<>(responseApi, HttpStatus.OK);
+    }
+
+    /**
+     * Информация о сотруднике
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id:\\d+}")
+    public ResponseEntity getEmployee(
+            @PathVariable int id) {
+
+        AbstractResponse response = employeeService.getInfoEmployee(id);
+        return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Редактирование информации о сотруднике
+     *
+     * @param id
+     * @param employeeEditApi
+     * @return
+     */
+    @PutMapping("/{id:\\d+}")
+    public ResponseEntity editEmployee(
+            @PathVariable int id,
+            @RequestBody EmployeeEditApi employeeEditApi) {
+
+        AbstractResponse response = employeeService.editInfoEmployee(id, employeeEditApi);
+        return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Увольнение сотрудника
+     *
+     * @param id
+     * @param dismissal
+     * @return
+     */
+    @PutMapping("/{id:\\d+}/dismissal")
+    public ResponseEntity dismissalEmployee(
+            @PathVariable int id,
+            @RequestParam String dismissal) {
+
+        AbstractResponse response = employeeService.dismissalEmployee(id, dismissal);
+        return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<Object> badRequestResponse() {

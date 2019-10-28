@@ -1,6 +1,7 @@
 package com.medweather.companystaff.service;
 
 import com.medweather.companystaff.api.request.EmployeeCreateApi;
+import com.medweather.companystaff.api.request.EmployeeEditApi;
 import com.medweather.companystaff.api.response.*;
 import com.medweather.companystaff.dao.DepartmentDAO;
 import com.medweather.companystaff.dao.EmployeeDAO;
@@ -109,6 +110,89 @@ public class EmployeeService {
 
         List<Employee> employees = employeeDAO.searchEmployees(lastName, firstName);
         return fillListEmployeeApi(employees);
+    }
+
+    public AbstractResponse getInfoEmployee(int id) {
+
+        return new ResponseApi("none", new Date().getTime(), fillEmployeeApi(employeeDAO.getEmployeeById(id)));
+    }
+
+    public AbstractResponse editInfoEmployee(int id, EmployeeEditApi editApi) {
+
+        AbstractResponse response;
+        Employee employee = employeeDAO.getEmployeeById(id);
+
+        if(Validate.isValidPhone(editApi.getPhone()))
+            employee.setPhone(editApi.getPhone());
+        else {
+            response = new ErrorApi("invalid_request", "Неправильный формат номера телефона");
+            response.setSuccess(false);
+            return response;
+        }
+
+        if(Validate.isValidEmail(editApi.getEmail()))
+            employee.setEmail(editApi.getEmail());
+        else {
+            response = new ErrorApi("invalid_request", "Неправильный формат email");
+            response.setSuccess(false);
+            return response;
+        }
+
+        if(editApi.getPosition().equals("HEAD") && !isHeadExists(employee.getDepartment().getId())) {
+            employee.setHead(true);
+            employee.setPosition(Position.HEAD);
+        }
+        else if(editApi.getPosition().equals("HEAD") && isHeadExists(employee.getDepartment().getId())) {
+            response = new ErrorApi("invalid_request", "В этом отделе уже есть руководитель");
+            response.setSuccess(false);
+            return response;
+        }
+        employee.setPosition(Position.valueOf(editApi.getPosition()));
+
+        if(isSalaryCompareHead(editApi.getSalary(), employee.getDepartment().getId()) &&
+                Validate.isValidSalary(String.valueOf(editApi.getSalary())))
+            employee.setSalary(editApi.getSalary());
+        else {
+            response = new ErrorApi("invalid_request", "Неправильный формат оклада или размер оклада превышает размер оклада руководителя");
+            response.setSuccess(false);
+            return response;
+        }
+
+        employee.setDepartment(departmentDAO.getDepartmentById(editApi.getDepartment_id()));
+        employeeDAO.editEmployee(employee);
+
+        return new ResponseApi("none", new Date().getTime(), fillEmployeeApi(employee));
+    }
+
+    public AbstractResponse dismissalEmployee(int id, String dismissal) {
+
+        AbstractResponse response;
+        Employee employee = employeeDAO.getEmployeeById(id);
+        try {
+            if(Validate.isValidDate(dismissal)) {
+                Date dateDismissal = new SimpleDateFormat("yyyy-MM-dd").parse(dismissal);
+
+                if (dateDismissal.getTime() > employee.getFromDate().getTime()) {
+                    employee.setDismissal(dateDismissal);
+                    employee.setDepartment(null);
+                }
+                else {
+                    response = new ErrorApi("invalid_request", "Дата увольнения должна быть больше даты приема на работу");
+                    response.setSuccess(false);
+                    return response;
+                }
+            }
+            else {
+                response = new ErrorApi("invalid_request", "Неправильный формат даты");
+                response.setSuccess(false);
+                return response;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        employeeDAO.editEmployee(employee);
+
+        return new ResponseApi("none", new Date().getTime(), fillEmployeeApi(employee));
     }
 
     private EmployeeListApi fillListEmployeeApi(List<Employee> employees) {
