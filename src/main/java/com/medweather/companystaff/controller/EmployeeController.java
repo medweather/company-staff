@@ -126,6 +126,36 @@ public class EmployeeController {
         return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Перевод сотрудника в другой отдел
+     *
+     * @param id
+     * @param department_id
+     * @return
+     */
+    @PutMapping("/{id:\\d+}/transfer")
+    public ResponseEntity transferEmployee(
+            @PathVariable int id,
+            @RequestParam int department_id) {
+
+        AbstractResponse response = employeeService.transferEmployee(id, department_id);
+        return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Сведения о руководителе данного сотрудника
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id:\\d+}/head")
+    public ResponseEntity getHeadOfEmployee(
+            @PathVariable int id) {
+
+        AbstractResponse response = employeeService.getHeadOfEmployee(id);
+        return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<Object> badRequestResponse() {
         Map<String, String> response = new HashMap<>();
         response.put("error", "invalid_request");

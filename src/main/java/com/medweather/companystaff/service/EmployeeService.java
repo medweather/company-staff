@@ -195,6 +195,29 @@ public class EmployeeService {
         return new ResponseApi("none", new Date().getTime(), fillEmployeeApi(employee));
     }
 
+    public AbstractResponse transferEmployee(int id, int otherDepartmentId) {
+
+        AbstractResponse response;
+        Employee employee = employeeDAO.getEmployeeById(id);
+        if(employee.getPosition().equals(Position.HEAD) && isHeadExists(otherDepartmentId)) {
+            response = new ErrorApi("invalid_request", "В этом отделе уже есть руководитель");
+            response.setSuccess(false);
+            return response;
+        }
+        employee.setDepartment(departmentDAO.getDepartmentById(otherDepartmentId));
+        employeeDAO.editEmployee(employee);
+
+        return new ResponseApi("none", new Date().getTime(), fillEmployeeApi(employee));
+    }
+
+    public AbstractResponse getHeadOfEmployee(int id) {
+
+        Employee headEmployee = employeeDAO.getHeadEmployeeByDepartment(employeeDAO.getEmployeeById(id).getDepartment());
+
+        return new ResponseApi("none", new Date().getTime(), fillEmployeeApi(headEmployee));
+    }
+
+
     private EmployeeListApi fillListEmployeeApi(List<Employee> employees) {
 
         EmployeeListApi employeeListApi = new EmployeeListApi();
