@@ -87,6 +87,30 @@ public class EmployeeService {
         return response;
     }
 
+    public ResponseApi getAllEmployee() {
+
+        return fillListEmployeeApi(employeeDAO.getAllEmployees());
+    }
+
+    public ResponseApi transferAllEmployees(int departmentId, int otherDepartmentId) {
+
+        List<Employee> employees = employeeDAO.transferAllEmployee(departmentDAO.getDepartmentById(departmentId));
+        for(Employee employee : employees) {
+            if(!employee.getPosition().toString().equals("HEAD")) {
+                employee.setDepartment(departmentDAO.getDepartmentById(otherDepartmentId));
+                employeeDAO.editEmployee(employee);
+            }
+        }
+
+        return fillListEmployeeApi(employees);
+    }
+
+    public ResponseApi searchEmployee(String lastName, String firstName) {
+
+        List<Employee> employees = employeeDAO.searchEmployees(lastName, firstName);
+        return fillListEmployeeApi(employees);
+    }
+
     private EmployeeListApi fillListEmployeeApi(List<Employee> employees) {
 
         EmployeeListApi employeeListApi = new EmployeeListApi();
