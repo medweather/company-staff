@@ -129,6 +129,14 @@ public class DepartmentService {
         return fillListDepartmentsApi(departmentDAO.getAllParentDepartments(departmentDAO.getDepartmentById(id)));
     }
 
+    public ResponseApi getSalaryFundOfDepartment(int id) {
+
+        DepartmentSalaryFundApi salaryFundApi = new DepartmentSalaryFundApi();
+        salaryFundApi.setSalaryFund(departmentDAO.getSalaryFundOfDepartment(departmentDAO.getDepartmentById(id)));
+
+        return new ResponseApi("none", new Date().getTime(), salaryFundApi);
+    }
+
     private DepartmentListApi fillListDepartmentsApi(List<Department> departments) {
 
         DepartmentListApi departmentListApi = new DepartmentListApi();
