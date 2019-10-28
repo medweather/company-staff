@@ -105,6 +105,30 @@ public class DepartmentService {
         return new ResponseApi("none", new Date().getTime(), departmentInfoApi);
     }
 
+    public ResponseApi getSubDepartmentsLevelBelow(int id) {
+
+        return fillListDepartmentsApi(departmentDAO.getSubDepartmentsLevelBelow(departmentDAO.getDepartmentById(id)));
+    }
+
+    public ResponseApi getAllSubDepartment(int id) {
+
+        return fillListDepartmentsApi(departmentDAO.getAllSubDepartments(departmentDAO.getDepartmentById(id)));
+    }
+
+    public ResponseApi getDepartmentAfterTransfer(int id, int parent_id) {
+
+        Department department = departmentDAO.getDepartmentById(id);
+        department.setParent_id(departmentDAO.getDepartmentById(parent_id));
+        departmentDAO.editDepartment(department);
+
+        return new ResponseApi("none", new Date().getTime(), fillDepartmentApi(department));
+    }
+
+    public ResponseApi getAllParentDepartments(int id) {
+
+        return fillListDepartmentsApi(departmentDAO.getAllParentDepartments(departmentDAO.getDepartmentById(id)));
+    }
+
     private DepartmentListApi fillListDepartmentsApi(List<Department> departments) {
 
         DepartmentListApi departmentListApi = new DepartmentListApi();

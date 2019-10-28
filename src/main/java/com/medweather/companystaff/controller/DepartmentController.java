@@ -93,6 +93,64 @@ public class DepartmentController {
         return responseApi == null ? badRequestResponse() : new ResponseEntity<>(responseApi, HttpStatus.OK);
     }
 
+    /**
+     * Информация о подчиненных данному отделу департаментах (на уровень ниже)
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id:\\d+}/departments")
+    public ResponseEntity getSubDepartmentsLevelBelow(
+            @PathVariable int id) {
+
+        ResponseApi responseApi = departmentService.getSubDepartmentsLevelBelow(id);
+        return new ResponseEntity<>(responseApi, HttpStatus.OK);
+    }
+
+    /**
+     * Информация о всех подчиненных данному отделу департаментах
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id:\\d+}/sub_departments")
+    public ResponseEntity getAllSubDepartments(
+            @PathVariable int id) {
+
+        ResponseApi responseApi = departmentService.getAllSubDepartment(id);
+        return new ResponseEntity<>(responseApi, HttpStatus.OK);
+    }
+
+    /**
+     * Перенос департамента в другой департамент
+     *
+     * @param id
+     * @param parent_id
+     * @return
+     */
+    @PutMapping("/{id:\\d+}/parent_department")
+    public ResponseEntity getDepartmentAfterTransfer(
+            @PathVariable int id,
+            @RequestParam int parent_id) {
+
+        ResponseApi responseApi = departmentService.getDepartmentAfterTransfer(id, parent_id);
+        return responseApi == null ? badRequestResponse() : new ResponseEntity<>(responseApi, HttpStatus.OK);
+    }
+
+    /**
+     * Информация о всех вышестоящих над данным отделом департаментах
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id:\\d+}/parent_department")
+    public ResponseEntity getAllParentDepartments(
+            @PathVariable int id) {
+
+        ResponseApi responseApi = departmentService.getAllParentDepartments(id);
+        return new ResponseEntity<>(responseApi, HttpStatus.OK);
+    }
+
     private ResponseEntity<Object> badRequestResponse() {
         Map<String, String> response = new HashMap<>();
         response.put("error", "invalid_request");
