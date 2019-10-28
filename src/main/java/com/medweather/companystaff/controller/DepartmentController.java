@@ -35,6 +35,20 @@ public class DepartmentController {
         return responseApi == null ? badRequestResponse() : new ResponseEntity<>(responseApi, HttpStatus.OK);
     }
 
+    /**
+     * Поиск департамента
+     *
+     * @param name
+     * @return
+     */
+    @GetMapping("")
+    public ResponseEntity searchDepartment(
+            @RequestParam String name) {
+
+        ResponseApi responseApi = departmentService.searchDepartment(name);
+        return new ResponseEntity<>(responseApi, HttpStatus.OK);
+    }
+
     private ResponseEntity<Object> badRequestResponse() {
         Map<String, String> response = new HashMap<>();
         response.put("error", "invalid_request");
