@@ -49,6 +49,22 @@ public class DepartmentController {
         return new ResponseEntity<>(responseApi, HttpStatus.OK);
     }
 
+    /**
+     * Изменение названия департамента
+     *
+     * @param id
+     * @param name
+     * @return
+     */
+    @PutMapping("/{id:\\d+}")
+    public ResponseEntity editDepartment(
+            @PathVariable int id,
+            @RequestParam String name) {
+
+        AbstractResponse response = departmentService.editNameOfDepartment(id, name);
+        return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<Object> badRequestResponse() {
         Map<String, String> response = new HashMap<>();
         response.put("error", "invalid_request");

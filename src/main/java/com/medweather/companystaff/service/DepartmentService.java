@@ -1,9 +1,7 @@
 package com.medweather.companystaff.service;
 
 import com.medweather.companystaff.api.request.DepartmentCreateApi;
-import com.medweather.companystaff.api.response.DepartmentApi;
-import com.medweather.companystaff.api.response.DepartmentListApi;
-import com.medweather.companystaff.api.response.ResponseApi;
+import com.medweather.companystaff.api.response.*;
 import com.medweather.companystaff.dao.DepartmentDAO;
 import com.medweather.companystaff.mapper.DepartmentMapper;
 import com.medweather.companystaff.model.Department;
@@ -43,6 +41,26 @@ public class DepartmentService {
 
         List<Department> departments = departmentDAO.searchDepartments(name);
         return fillListDepartmentsApi(departments);
+    }
+
+    public AbstractResponse editNameOfDepartment(int id, String name) {
+
+        final AbstractResponse[] response = new AbstractResponse[1];
+        Department department = departmentDAO.getDepartmentById(id);
+        List<String> departmentList = departmentDAO.getAllDepartmentNames();
+        departmentList.forEach(d -> {
+            if(!d.toLowerCase().trim().equals(name.toLowerCase().trim())) {
+                department.setName(name);
+                departmentDAO.editDepartment(department);
+                response[0] = new ResponseApi("none", new Date().getTime(), fillDepartmentApi(department));
+            }
+            else {
+                response[0] = new ErrorApi("invalid_request", "Такой отдел уже существует");
+                response[0].setSuccess(false);
+            }
+        });
+
+        return response[0];
     }
 
     private DepartmentListApi fillListDepartmentsApi(List<Department> departments) {
