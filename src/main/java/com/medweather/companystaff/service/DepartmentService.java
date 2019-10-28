@@ -3,6 +3,7 @@ package com.medweather.companystaff.service;
 import com.medweather.companystaff.api.request.DepartmentCreateApi;
 import com.medweather.companystaff.api.response.*;
 import com.medweather.companystaff.dao.DepartmentDAO;
+import com.medweather.companystaff.dao.EmployeeDAO;
 import com.medweather.companystaff.mapper.DepartmentMapper;
 import com.medweather.companystaff.model.Department;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,12 @@ public class DepartmentService {
 
     private final DepartmentMapper departmentMapper;
 
-    public DepartmentService(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper) {
+    private final EmployeeDAO employeeDAO;
+
+    public DepartmentService(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper, EmployeeDAO employeeDAO) {
         this.departmentDAO = departmentDAO;
         this.departmentMapper = departmentMapper;
+        this.employeeDAO = employeeDAO;
     }
 
     public ResponseApi createDepartment(DepartmentCreateApi departmentCreateApi) {
@@ -61,6 +65,25 @@ public class DepartmentService {
         });
 
         return response[0];
+    }
+
+    public AbstractResponse deleteDepartment(int id) {
+
+        AbstractResponse response;
+        Department department = departmentDAO.getDepartmentById(id);
+        DepartmentDeleteApi departmentDeleteApi = new DepartmentDeleteApi();
+        if(employeeDAO.transferAllEmployee(department).isEmpty()) {
+            department.setParent_id(null);
+            departmentDeleteApi.setId(department.getId());
+            departmentDAO.deleteDepartment(department);
+            response = new ResponseApi("none", new Date().getTime(), departmentDeleteApi);
+        }
+        else {
+            response = new ErrorApi("invalid_request", "Отдел не может быть удален, так как в нем числятся сотрудники");
+            response.setSuccess(false);
+        }
+
+        return response;
     }
 
     private DepartmentListApi fillListDepartmentsApi(List<Department> departments) {

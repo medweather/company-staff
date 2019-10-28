@@ -65,6 +65,20 @@ public class DepartmentController {
         return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Удаление департамента
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/{id:\\d+}")
+    public ResponseEntity deleteDepartment(
+            @PathVariable int id) {
+
+        AbstractResponse response = departmentService.deleteDepartment(id);
+        return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<Object> badRequestResponse() {
         Map<String, String> response = new HashMap<>();
         response.put("error", "invalid_request");
