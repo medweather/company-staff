@@ -79,6 +79,20 @@ public class DepartmentController {
         return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Информация о департаменте
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id:\\d+}")
+    public ResponseEntity getInfoByDepartment(
+            @PathVariable int id) {
+
+        ResponseApi responseApi = departmentService.getInfoOfDepartment(id);
+        return responseApi == null ? badRequestResponse() : new ResponseEntity<>(responseApi, HttpStatus.OK);
+    }
+
     private ResponseEntity<Object> badRequestResponse() {
         Map<String, String> response = new HashMap<>();
         response.put("error", "invalid_request");

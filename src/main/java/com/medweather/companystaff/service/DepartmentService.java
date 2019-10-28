@@ -5,7 +5,9 @@ import com.medweather.companystaff.api.response.*;
 import com.medweather.companystaff.dao.DepartmentDAO;
 import com.medweather.companystaff.dao.EmployeeDAO;
 import com.medweather.companystaff.mapper.DepartmentMapper;
+import com.medweather.companystaff.mapper.EmployeeMapper;
 import com.medweather.companystaff.model.Department;
+import com.medweather.companystaff.model.Employee;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -21,10 +23,13 @@ public class DepartmentService {
 
     private final EmployeeDAO employeeDAO;
 
-    public DepartmentService(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper, EmployeeDAO employeeDAO) {
+    private final EmployeeMapper employeeMapper;
+
+    public DepartmentService(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper, EmployeeDAO employeeDAO, EmployeeMapper employeeMapper) {
         this.departmentDAO = departmentDAO;
         this.departmentMapper = departmentMapper;
         this.employeeDAO = employeeDAO;
+        this.employeeMapper = employeeMapper;
     }
 
     public ResponseApi createDepartment(DepartmentCreateApi departmentCreateApi) {
@@ -84,6 +89,20 @@ public class DepartmentService {
         }
 
         return response;
+    }
+
+    public ResponseApi getInfoOfDepartment(int id) {
+
+        Department department = departmentDAO.getDepartmentById(id);
+        DepartmentInfoApi departmentInfoApi = new DepartmentInfoApi();
+        departmentInfoApi.setId(department.getId());
+        departmentInfoApi.setName(department.getName());
+        departmentInfoApi.setFromDate(department.getFromDate().getTime());
+        Employee head = employeeDAO.getHeadEmployeeByDepartment(department);
+        departmentInfoApi.setManager(employeeMapper.toApi(head));
+        departmentInfoApi.setCountOfEmployees(employeeDAO.getCountEmployeesOfDepartment(department));
+
+        return new ResponseApi("none", new Date().getTime(), departmentInfoApi);
     }
 
     private DepartmentListApi fillListDepartmentsApi(List<Department> departments) {
