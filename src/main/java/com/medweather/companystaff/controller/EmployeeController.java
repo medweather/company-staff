@@ -30,9 +30,11 @@ public class EmployeeController {
      */
     @PostMapping("")
     public ResponseEntity createEmployee(
+            @RequestParam String gender,
+            @RequestParam String position,
             @RequestBody EmployeeCreateApi employeeCreateApi) {
 
-        AbstractResponse response = employeeService.createEmployee(employeeCreateApi);
+        AbstractResponse response = employeeService.createEmployee(gender, position, employeeCreateApi);
         return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 
@@ -104,9 +106,10 @@ public class EmployeeController {
     @PutMapping("/{id:\\d+}")
     public ResponseEntity editEmployee(
             @PathVariable int id,
+            @RequestParam(required = false) String position,
             @RequestBody EmployeeEditApi employeeEditApi) {
 
-        AbstractResponse response = employeeService.editInfoEmployee(id, employeeEditApi);
+        AbstractResponse response = employeeService.editInfoEmployee(id, position, employeeEditApi);
         return new ResponseEntity(response, response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 

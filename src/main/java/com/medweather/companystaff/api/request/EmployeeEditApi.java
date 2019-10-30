@@ -7,7 +7,6 @@ public class EmployeeEditApi {
 
    private String phone;
    private String email;
-   private String position;
    private long salary;
    private int department_id;
 
@@ -25,14 +24,6 @@ public class EmployeeEditApi {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
     }
 
     public long getSalary() {

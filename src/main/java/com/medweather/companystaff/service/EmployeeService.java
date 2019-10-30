@@ -33,7 +33,7 @@ public class EmployeeService {
         this.employeeMapper = employeeMapper;
     }
 
-    public AbstractResponse createEmployee(EmployeeCreateApi employeeCreateApi) {
+    public AbstractResponse createEmployee(String gender, String position, EmployeeCreateApi employeeCreateApi) {
 
         AbstractResponse response;
 
@@ -54,20 +54,20 @@ public class EmployeeService {
                 employee.setBirthday(date);
                 employee.setEmail(employeeCreateApi.getEmail());
                 employee.setDepartment(departmentDAO.getDepartmentById(employeeCreateApi.getDepartmentId()));
-                employee.setGender(Gender.valueOf(employeeCreateApi.getGender()));
+                employee.setGender(Gender.valueOf(gender));
                 employee.setFromDate(new Date());
                 employee.setPhone(employeeCreateApi.getPhone());
                 employee.setSalary(employeeCreateApi.getSalary());
-                if(employeeCreateApi.getPosition().equals("HEAD") && !isHeadExists(employeeCreateApi.getDepartmentId())) {
+                if(position.equals("HEAD") && !isHeadExists(employeeCreateApi.getDepartmentId())) {
                     employee.setHead(true);
                     employee.setPosition(Position.HEAD);
                 }
-                else if(employeeCreateApi.getPosition().equals("HEAD") && isHeadExists(employeeCreateApi.getDepartmentId())) {
+                else if(position.equals("HEAD") && isHeadExists(employeeCreateApi.getDepartmentId())) {
                     response = new ErrorApi("invalid_request", "В этом отделе уже есть руководитель");
                     response.setSuccess(false);
                     return response;
                 }
-                employee.setPosition(Position.valueOf(employeeCreateApi.getPosition()));
+                employee.setPosition(Position.valueOf(position));
                 employeeDAO.addEmployee(employee);
 
                 return new ResponseApi("none", new Date().getTime(), fillEmployeeApi(employee));
@@ -117,7 +117,7 @@ public class EmployeeService {
         return new ResponseApi("none", new Date().getTime(), fillEmployeeApi(employeeDAO.getEmployeeById(id)));
     }
 
-    public AbstractResponse editInfoEmployee(int id, EmployeeEditApi editApi) {
+    public AbstractResponse editInfoEmployee(int id, String position, EmployeeEditApi editApi) {
 
         AbstractResponse response;
         Employee employee = employeeDAO.getEmployeeById(id);
@@ -138,16 +138,16 @@ public class EmployeeService {
             return response;
         }
 
-        if(editApi.getPosition().equals("HEAD") && !isHeadExists(employee.getDepartment().getId())) {
+        if(position.equals("HEAD") && !isHeadExists(employee.getDepartment().getId())) {
             employee.setHead(true);
             employee.setPosition(Position.HEAD);
         }
-        else if(editApi.getPosition().equals("HEAD") && isHeadExists(employee.getDepartment().getId())) {
+        else if(position.equals("HEAD") && isHeadExists(employee.getDepartment().getId())) {
             response = new ErrorApi("invalid_request", "В этом отделе уже есть руководитель");
             response.setSuccess(false);
             return response;
         }
-        employee.setPosition(Position.valueOf(editApi.getPosition()));
+        employee.setPosition(Position.valueOf(position));
 
         if(isSalaryCompareHead(editApi.getSalary(), employee.getDepartment().getId()) &&
                 Validate.isValidSalary(String.valueOf(editApi.getSalary())))

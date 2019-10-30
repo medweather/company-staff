@@ -15,15 +15,11 @@ public class EmployeeCreateApi {
 
     private String patronymic;
 
-    private String gender;
-
     private String birthday;
 
     private String phone;
 
     private String email;
-
-    private String position;
 
     private long salary;
 
@@ -55,14 +51,6 @@ public class EmployeeCreateApi {
         this.patronymic = patronymic;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
     public String getBirthday() {
         return birthday;
     }
@@ -85,14 +73,6 @@ public class EmployeeCreateApi {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
     }
 
     public long getSalary() {
