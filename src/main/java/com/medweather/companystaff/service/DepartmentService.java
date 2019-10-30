@@ -3,11 +3,13 @@ package com.medweather.companystaff.service;
 import com.medweather.companystaff.api.request.DepartmentCreateApi;
 import com.medweather.companystaff.api.response.*;
 import com.medweather.companystaff.dao.DepartmentDAO;
+import com.medweather.companystaff.dao.DepartmentEventInfoDAO;
 import com.medweather.companystaff.dao.EmployeeDAO;
 import com.medweather.companystaff.dao.SumSalaryDAO;
 import com.medweather.companystaff.mapper.DepartmentMapper;
 import com.medweather.companystaff.mapper.EmployeeMapper;
 import com.medweather.companystaff.model.Department;
+import com.medweather.companystaff.model.DepartmentEventInfo;
 import com.medweather.companystaff.model.Employee;
 import com.medweather.companystaff.model.SumSalary;
 import org.springframework.stereotype.Service;
@@ -29,12 +31,15 @@ public class DepartmentService {
 
     private final SumSalaryDAO sumSalaryDAO;
 
-    public DepartmentService(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper, EmployeeDAO employeeDAO, EmployeeMapper employeeMapper, SumSalaryDAO sumSalaryDAO) {
+    private final DepartmentEventInfoDAO departmentEventInfoDAO;
+
+    public DepartmentService(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper, EmployeeDAO employeeDAO, EmployeeMapper employeeMapper, SumSalaryDAO sumSalaryDAO, DepartmentEventInfoDAO departmentEventInfoDAO) {
         this.departmentDAO = departmentDAO;
         this.departmentMapper = departmentMapper;
         this.employeeDAO = employeeDAO;
         this.employeeMapper = employeeMapper;
         this.sumSalaryDAO = sumSalaryDAO;
+        this.departmentEventInfoDAO = departmentEventInfoDAO;
     }
 
     public ResponseApi createDepartment(DepartmentCreateApi departmentCreateApi) {
@@ -51,6 +56,11 @@ public class DepartmentService {
         sumSalary.setDepartment(department);
         sumSalary.setDepartmentName(department.getName());
         sumSalaryDAO.save(sumSalary);
+
+        DepartmentEventInfo departmentEventInfo = new DepartmentEventInfo();
+        departmentEventInfo.setDepartmentName(department.getName());
+        departmentEventInfo.setEventInfo("Отдел успешно создан");
+        departmentEventInfoDAO.save(departmentEventInfo);
 
         DepartmentApi departmentApi = departmentMapper.toApi(department);
         return new ResponseApi("none", new Date().getTime(), departmentApi);
@@ -71,6 +81,7 @@ public class DepartmentService {
             if(!d.toLowerCase().trim().equals(name.toLowerCase().trim())) {
                 department.setName(name);
                 departmentDAO.editDepartment(department);
+
                 response[0] = new ResponseApi("none", new Date().getTime(), fillDepartmentApi(department));
             }
             else {
@@ -78,6 +89,11 @@ public class DepartmentService {
                 response[0].setSuccess(false);
             }
         });
+
+        DepartmentEventInfo departmentEventInfo = new DepartmentEventInfo();
+        departmentEventInfo.setDepartmentName(department.getName());
+        departmentEventInfo.setEventInfo("Название отдела успешно изменено или такой отдел уже существует");
+        departmentEventInfoDAO.save(departmentEventInfo);
 
         return response[0];
     }
@@ -90,7 +106,6 @@ public class DepartmentService {
         if(employeeDAO.transferAllEmployee(department).isEmpty()) {
             department.setParent_id(null);
             departmentDeleteApi.setId(department.getId());
-            departmentDAO.deleteDepartment(department);
 
             List<SumSalary> sumSalaries = sumSalaryDAO.getAllSumSalary();
             sumSalaries.forEach(sumSalary -> {
@@ -98,6 +113,13 @@ public class DepartmentService {
                     sumSalaryDAO.delete(sumSalary);
                 }
             });
+
+            DepartmentEventInfo departmentEventInfo = new DepartmentEventInfo();
+            departmentEventInfo.setDepartmentName(department.getName());
+            departmentEventInfo.setEventInfo("Отдел успешно удален");
+            departmentEventInfoDAO.save(departmentEventInfo);
+
+            departmentDAO.deleteDepartment(department);
 
             response = new ResponseApi("none", new Date().getTime(), departmentDeleteApi);
         }
