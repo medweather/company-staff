@@ -28,6 +28,10 @@ public class SumSalaryDAO {
         getCurrentSession().update(sumSalary);
     }
 
+    public void delete(SumSalary sumSalary) {
+        getCurrentSession().delete(sumSalary);
+    }
+
     private Session getCurrentSession() {
         return sessionFactory.getCurrentSession();
     }

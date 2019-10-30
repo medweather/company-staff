@@ -91,6 +91,14 @@ public class DepartmentService {
             department.setParent_id(null);
             departmentDeleteApi.setId(department.getId());
             departmentDAO.deleteDepartment(department);
+
+            List<SumSalary> sumSalaries = sumSalaryDAO.getAllSumSalary();
+            sumSalaries.forEach(sumSalary -> {
+                if(sumSalary.getDepartment().equals(department)) {
+                    sumSalaryDAO.delete(sumSalary);
+                }
+            });
+
             response = new ResponseApi("none", new Date().getTime(), departmentDeleteApi);
         }
         else {

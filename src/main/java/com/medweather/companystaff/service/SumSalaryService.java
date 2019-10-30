@@ -24,6 +24,9 @@ public class SumSalaryService {
         this.departmentDAO = departmentDAO;
     }
 
+    /**
+     * Обновление фонда заработной платы каждого отдела
+     */
     @Scheduled(initialDelayString = "15000", fixedDelayString = "300000")
     public void updateSumSalary() {
 
