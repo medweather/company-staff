@@ -4,10 +4,12 @@ import com.medweather.companystaff.api.request.DepartmentCreateApi;
 import com.medweather.companystaff.api.response.*;
 import com.medweather.companystaff.dao.DepartmentDAO;
 import com.medweather.companystaff.dao.EmployeeDAO;
+import com.medweather.companystaff.dao.SumSalaryDAO;
 import com.medweather.companystaff.mapper.DepartmentMapper;
 import com.medweather.companystaff.mapper.EmployeeMapper;
 import com.medweather.companystaff.model.Department;
 import com.medweather.companystaff.model.Employee;
+import com.medweather.companystaff.model.SumSalary;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -25,11 +27,14 @@ public class DepartmentService {
 
     private final EmployeeMapper employeeMapper;
 
-    public DepartmentService(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper, EmployeeDAO employeeDAO, EmployeeMapper employeeMapper) {
+    private final SumSalaryDAO sumSalaryDAO;
+
+    public DepartmentService(DepartmentDAO departmentDAO, DepartmentMapper departmentMapper, EmployeeDAO employeeDAO, EmployeeMapper employeeMapper, SumSalaryDAO sumSalaryDAO) {
         this.departmentDAO = departmentDAO;
         this.departmentMapper = departmentMapper;
         this.employeeDAO = employeeDAO;
         this.employeeMapper = employeeMapper;
+        this.sumSalaryDAO = sumSalaryDAO;
     }
 
     public ResponseApi createDepartment(DepartmentCreateApi departmentCreateApi) {
@@ -41,6 +46,11 @@ public class DepartmentService {
         department.setFromDate(new Date());
 
         departmentDAO.createDepartment(department);
+
+        SumSalary sumSalary = new SumSalary();
+        sumSalary.setDepartment(department);
+        sumSalary.setDepartmentName(department.getName());
+        sumSalaryDAO.save(sumSalary);
 
         DepartmentApi departmentApi = departmentMapper.toApi(department);
         return new ResponseApi("none", new Date().getTime(), departmentApi);
